@@ -1,4 +1,5 @@
 ﻿using ngkopgavea.Models;
+using ngkopgavea.RepositoryPattern;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +10,21 @@ namespace ngkopgavea
     public class UnitOfWork : IDisposable
     {
         public DatabaseContext Context { get; protected set; }
-        private Repository<WeatherForecast> weatherForecastRepository;
+        private WeatherForecastRepository weatherForecastRepository;
         private Repository<Location> locationRepository;
+        private UserRepository userRepository;
         public UnitOfWork()
         {
             Context = new DatabaseContext();
         }
-        public IRepository<WeatherForecast> WeatherForecastRepository
+        public IWeatherForecastRepository WeatherForecastRepository
         {
             get
             {
 
-                if (this.weatherForecastRepository == null)
+                if (weatherForecastRepository == null)
                 {
-                    this.weatherForecastRepository = new Repository<WeatherForecast>(Context);
+                    weatherForecastRepository = new WeatherForecastRepository(Context);
                 }
                 return weatherForecastRepository;
             }
@@ -37,6 +39,18 @@ namespace ngkopgavea
                     locationRepository = new Repository<Location>(Context);
                 }
                 return locationRepository;
+            }
+        }
+        public IUserRepository UserRepository
+        {
+            get
+            {
+
+                if (userRepository == null)
+                {
+                    userRepository = new UserRepository(Context);
+                }
+                return userRepository;
             }
         }
         public int Commit()

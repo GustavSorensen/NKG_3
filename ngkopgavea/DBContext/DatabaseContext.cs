@@ -21,6 +21,7 @@ namespace ngkopgavea
 
         public DbSet<WeatherForecast> WeatherForecasts { get; set; }
         public DbSet<Location> Locations { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

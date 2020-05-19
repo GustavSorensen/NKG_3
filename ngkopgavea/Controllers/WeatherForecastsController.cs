@@ -8,11 +8,13 @@ using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using ngkopgavea;
 using ngkopgavea.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ngkopgavea.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class WeatherForecastsController : ControllerBase
     {
         private readonly UnitOfWork uow;
@@ -25,7 +27,7 @@ namespace ngkopgavea.Controllers
 
         // GET: api/WeatherForecasts
         [HttpGet]
-        public async Task<ActionResult<string>> GetWeatherForecasts()
+        public async Task<ActionResult<string>> GetAll()
         {
             try
             {
@@ -37,10 +39,48 @@ namespace ngkopgavea.Controllers
                 return NotFound();
             }
         }
-
+        [HttpGet("{start}/{end}")]
+        public async Task<ActionResult<string>> GetByInterval(DateTime start, DateTime end)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.GetByInterval(start, end), Formatting.Indented, serializerSettings);
+                return json;
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+        [HttpGet("new")]
+        public async Task<ActionResult<string>> GetNewest()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.GetTopThreeNewest(), Formatting.Indented, serializerSettings);
+                return json;
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+        [HttpGet("{date}")]
+        public async Task<ActionResult<string>> GetByDate(DateTime date)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.GetByDate(date), Formatting.Indented, serializerSettings);
+                return json;
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
         // GET: api/WeatherForecasts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<string>> GetWeatherForecast(int id)
+        public async Task<ActionResult<string>> Get(int id)
         {
             try
             {
