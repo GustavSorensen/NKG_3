@@ -21,15 +21,15 @@ namespace ngkopgavea.RepositoryPattern
         }
         public async Task<List<WeatherForecast>> GetTopThreeNewest()
         {
-            return await Context.WeatherForecasts.OrderBy(x => x.Date).Take(3).ToListAsync();
+            return await Context.WeatherForecasts.OrderBy(x => x.Date).Take(3).Include(x => x.Location).ToListAsync();
         }
         public async Task<List<WeatherForecast>> GetByDate(DateTime date)
         {
-            return await Context.WeatherForecasts.Where(x => x.Date == date).ToListAsync();
+            return await Context.WeatherForecasts.Where(x => x.Date == date).Include(x => x.Location).ToListAsync();
         }
         public async Task<List<WeatherForecast>> GetByInterval(DateTime startDate, DateTime endDate)
         {
-            return await Context.WeatherForecasts.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
+            return await Context.WeatherForecasts.Where(x => x.Date >= startDate && x.Date <= endDate).Include(x => x.Location).ToListAsync();
         }
     }
 }
