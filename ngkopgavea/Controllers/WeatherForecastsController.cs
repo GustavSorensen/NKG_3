@@ -12,13 +12,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ngkopgavea.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class WeatherForecastsController : ControllerBase
     {
         private readonly UnitOfWork uow;
-        private JsonSerializerSettings serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
+        private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
 
         public WeatherForecastsController()
         {
@@ -58,7 +58,7 @@ namespace ngkopgavea.Controllers
             try
             {
                 string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.GetTopThreeNewest(), Formatting.Indented, serializerSettings);
-                return json;
+                return Ok(json);
             }
             catch
             {

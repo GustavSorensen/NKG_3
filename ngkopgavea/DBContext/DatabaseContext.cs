@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using ngkopgavea.Configurations;
 using ngkopgavea.Models;
 
 namespace ngkopgavea
@@ -30,6 +31,8 @@ namespace ngkopgavea
                 .HasOne(a => a.Location)
                 .WithOne(b => b.WeatherForecast)
                 .HasForeignKey<Location>(e => e.WeatherForecastId);
+
+            modelBuilder.ApplyConfiguration(new WeatherForecastConfigurations());
         }
     } 
 }

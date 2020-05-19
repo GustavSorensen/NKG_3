@@ -21,7 +21,7 @@ namespace ngkopgavea.RepositoryPattern
         }
         public async Task<List<WeatherForecast>> GetTopThreeNewest()
         {
-            return await Context.WeatherForecasts.OrderBy(x => x.Date).Take(3).Include(x => x.Location).ToListAsync();
+            return await Context.WeatherForecasts.OrderBy(x => x.Date).Take(3).Include(x => x.Location).ToListAsync(); ;
         }
         public async Task<List<WeatherForecast>> GetByDate(DateTime date)
         {
