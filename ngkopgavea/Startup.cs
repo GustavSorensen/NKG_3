@@ -50,7 +50,7 @@ namespace ngkopgavea
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
-                endpoints.MapHub<ChatHub>("/chatHub");
+                endpoints.MapHub<MeasurementHub>("/measurementHub");
             });
         }
     }

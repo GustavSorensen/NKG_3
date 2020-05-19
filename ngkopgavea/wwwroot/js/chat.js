@@ -2,7 +2,23 @@
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
 
-//Disable send button until connection is established
+connection.start().catch(function (e) {
+});
+
+connection.on("ReceiveMeasurement", function (time, name, lat, lon, temp, humid, pressure) {
+    var m = "Time :" + time + ", " +
+        "Name: " + name + ", " +
+        "Lat: " + lat + ", " +
+        "Lon: " + lon + ", " +
+        "Temperature: " + temp + ", " +
+        "Humidity: " + humid + ", " +
+        "Pressure: " + pressure;
+    var li = document.createElement("li");
+    li.textContent = m;
+    document.getElementById("measurementList").appendChild(li);
+});
+
+/*//Disable send button until connection is established
 document.getElementById("sendButton").disabled = true;
 
 connection.on("ReceiveMessage", function (user, message) {
@@ -26,4 +42,4 @@ document.getElementById("sendButton").addEventListener("click", function (event)
         return console.error(err.toString());
     });
     event.preventDefault();
-});
+});*/
