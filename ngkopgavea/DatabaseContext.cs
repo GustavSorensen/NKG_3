@@ -26,10 +26,7 @@ namespace ngkopgavea.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            modelBuilder.Entity<WeatherForecast>()
-                .HasOne(a => a.Location)
-                .WithMany(b => b.WeatherForecast)
-                .HasForeignKey<Location>(e => e.WeatherForecastId);
+
         }
     } 
 }
