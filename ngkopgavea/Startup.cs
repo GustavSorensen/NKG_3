@@ -29,6 +29,7 @@ namespace ngkopgavea
         {
             services.AddControllers();
             services.AddSignalR();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,6 +49,7 @@ namespace ngkopgavea
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapRazorPages();
                 endpoints.MapHub<ChatHub>("/chatHub");
             });
         }
