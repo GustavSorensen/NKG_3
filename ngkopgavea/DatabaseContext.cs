@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ngkopgavea.Models;
 
-namespace ngkopgavea.Models
+namespace ngkopgavea
 {
     public class DatabaseContext :DbContext
     {
@@ -28,7 +28,7 @@ namespace ngkopgavea.Models
 
             modelBuilder.Entity<WeatherForecast>()
                 .HasOne(a => a.Location)
-                .WithMany(b => b.WeatherForecast)
+                .WithOne(b => b.WeatherForecast)
                 .HasForeignKey<Location>(e => e.WeatherForecastId);
         }
     } 

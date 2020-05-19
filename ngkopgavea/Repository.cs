@@ -1,17 +1,20 @@
-﻿using ngkopgavea.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ngkopgavea.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace ngkopgavea
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        void Add(TEntity entity);
-        TEntity Get(int id);
-        IEnumerable<TEntity> Get();
-        void Delete(TEntity entity);
+        Task Add(TEntity entity);
+        Task<TEntity> Get(int id);
+        Task<IEnumerable<TEntity>> Get();
+        Task Delete(TEntity entity);
+        Task Update(TEntity entity);
     }
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
@@ -21,21 +24,28 @@ namespace ngkopgavea
         {
             Context = context;
         }
-        public TEntity Get(int id)
+        public async Task<TEntity> Get(int id)
         {
-            return Context.Set<TEntity>().Find(id);
+            return await Context.Set<TEntity>().FindAsync(id);
         }
-        public IEnumerable<TEntity> Get()
+        public async Task<IEnumerable<TEntity>> Get()
         {
-            return Context.Set<TEntity>().ToList();
+            return await Context.Set<TEntity>().ToListAsync();
         }
-        public void Add(TEntity entity)
+        public async Task Add(TEntity entity)
         {
-            Context.Set<TEntity>().Add(entity);
+            await Context.Set<TEntity>().AddAsync(entity);
+            await Context.SaveChangesAsync();
         }
-        public void Delete(TEntity entity)
+        public async Task Delete(TEntity entity)
         {
             Context.Set<TEntity>().Remove(entity);
+            await Context.SaveChangesAsync();
+        }
+        public async Task Update(TEntity entity)
+        {
+            Context.Entry(entity).State = EntityState.Modified;
+            await Context.SaveChangesAsync();
         }
     }
 }
