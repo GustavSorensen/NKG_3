@@ -57,15 +57,16 @@ namespace ngkopgavea.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<WeatherForecast>> PostWeatherForecast(WeatherForecast weatherForecast)
+        public async Task<ActionResult<string>> PostWeatherForecast(WeatherForecast weatherForecast)
         {
             await uow.WeatherForecastRepository.Add(weatherForecast);
-            return CreatedAtAction("GetWeatherForecast", new { id = weatherForecast.Id }, weatherForecast);
+            string json = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented, serializerSettings);
+            return json;
         }
 
         // DELETE: api/WeatherForecasts/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<WeatherForecast>> DeleteWeatherForecast(int id)
+        public async Task<ActionResult<string>> DeleteWeatherForecast(int id)
         {
             var weatherForecast = await uow.WeatherForecastRepository.Get(id);
             if (weatherForecast == null)
@@ -73,7 +74,8 @@ namespace ngkopgavea.Controllers
                 return NotFound();
             }
             await uow.WeatherForecastRepository.Delete(weatherForecast);
-            return weatherForecast;
+            string json = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented, serializerSettings);
+            return json;
         }
     }
 }
