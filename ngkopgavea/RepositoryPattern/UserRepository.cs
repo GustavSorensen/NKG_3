@@ -33,7 +33,7 @@ namespace ngkopgavea.RepositoryPattern
         }
         public async Task<bool> Get(string username)
         {
-            var user = Context.Users.Find(username);
+            var user = await Context.Users.FindAsync(username);
             if(user != null)
             {
                 return false;

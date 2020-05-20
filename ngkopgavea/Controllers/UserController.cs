@@ -4,29 +4,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
+using ngkopgavea;
 using ngkopgavea.Models;
-using static BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using ngkopgavea.Hubs;
+using static BCrypt.Net.BCrypt;
 
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ngkopgavea.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private readonly UnitOfWork unit;
+        private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
 
-        public UserController(UnitOfWork unit)
+        public UserController()
         {
-            this.unit = unit;
+            unit = new UnitOfWork();
         }
-
-        [AllowAnonymous]
-        [HttpPost("authenticate")]
+        [HttpPost("login")]
         public IActionResult Authenticate([FromBody]UserDTO model)
         {
             var user = unit.UserRepository.Authenticate(model.Username, model.Password);
@@ -36,7 +39,7 @@ namespace ngkopgavea.Controllers
 
             return Ok(user);
         }
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> Register([FromBody] UserDTO userDTO)
         {
             bool exist = await unit.UserRepository.Get(userDTO.Username);
@@ -55,10 +58,11 @@ namespace ngkopgavea.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<ActionResult<string>> GetAll()
         {
-            var users = unit.UserRepository.Get();
-            return Ok(users);
+            var users = await unit.UserRepository.Get();
+            string json = JsonConvert.SerializeObject(users, Formatting.Indented, serializerSettings);
+            return Ok(json);
         }
     }
 }
