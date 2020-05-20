@@ -104,10 +104,10 @@ namespace ngkopgavea.Controllers
         public async Task<ActionResult<string>> PostWeatherForecast(WeatherForecast weatherForecast)
         {
             await uow.WeatherForecastRepository.Add(weatherForecast);
-            await hub.Clients.All.SendAsync("ReceiveMeasurement",
-                weatherForecast.Date, 
+            await hub.Clients.All.SendAsync("NewMeasurements",
+                weatherForecast.Date,
                 weatherForecast.Location.Name,
-                weatherForecast.Location.Latitude, 
+                weatherForecast.Location.Latitude,
                 weatherForecast.Location.Longitude,
                 weatherForecast.TemperatureC,
                 weatherForecast.Humidity,

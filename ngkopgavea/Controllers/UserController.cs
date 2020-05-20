@@ -30,20 +30,20 @@ namespace ngkopgavea.Controllers
             unit = new UnitOfWork();
         }
         [HttpPost("login")]
-        public IActionResult Authenticate([FromBody]UserDTO model)
+        public async Task<ActionResult<User>> Authenticate([FromBody]UserDTO model)
         {
-            var user = unit.UserRepository.Authenticate(model.Username, model.Password);
+            var user = await unit.UserRepository.Authenticate(model.Username, model.Password);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
             return Ok(user);
         }
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<ActionResult<UserDTO>> Register([FromBody] UserDTO userDTO)
         {
             bool exist = await unit.UserRepository.Get(userDTO.Username);
-            if(!exist)
+            if(exist)
             {
                 var user = new User()
                 {

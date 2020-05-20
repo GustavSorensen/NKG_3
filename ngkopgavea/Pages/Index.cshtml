@@ -1,13 +1,17 @@
 ﻿@page
+<div>
+
+    <h1>Live measurement stream</h1>
+</div>
+<div>
     <div>
-        <h1>Latest weather measurements</h1>
+        <hr />
     </div>
+</div>
+<div>
     <div>
         <ul readonly id="measurementList"></ul>
-        @*Indlæs en liste af data her*@
     </div>
-
-    <script src="~/js/signalr/dist/browser/signalr.js"></script>
-    <script src="~/js/client.js"></script>
-
-    
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/Client.js"></script>

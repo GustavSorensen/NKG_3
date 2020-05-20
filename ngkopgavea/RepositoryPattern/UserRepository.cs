@@ -33,25 +33,33 @@ namespace ngkopgavea.RepositoryPattern
         }
         public async Task<bool> Get(string username)
         {
-            var user = await Context.Users.FindAsync(username);
-            if(user != null)
+            try 
             {
-                return false;
+                var user = await Context.Users.FirstOrDefaultAsync(x => x.Username == username);
+                if (user != null)
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+
             }
             return true;
         }
         public async Task<User> Authenticate(string username, string password)
         {
-            var user = await Context.Users.SingleOrDefaultAsync(x => x.Username == username && x.Password == password);
+            var user = await Context.Users.SingleOrDefaultAsync(x => x.Username == username);
+            bool validPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
             // return null if user not found
-            if (user == null)
+            if (user == null || !validPassword)
             {
                 return null;
             }
 
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var key = Encoding.ASCII.GetBytes("Gustav-2374-OFFKDI940NG7:56753253-tyuw-5769-0921-kfirox29zoxv");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
