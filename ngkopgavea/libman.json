@@ -1,8 +1,9 @@
 {
   "version": "1.0",
-  "defaultProvider": "unpkg",
+  "defaultProvider": "cdnjs",
   "libraries": [
     {
+      "provider": "unpkg",
       "library": "@microsoft/signalr@latest",
       "destination": "wwwrooot/js/signalr",
       "files": [

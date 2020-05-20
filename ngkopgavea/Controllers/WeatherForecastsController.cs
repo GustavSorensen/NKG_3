@@ -9,19 +9,22 @@ using Microsoft.EntityFrameworkCore;
 using ngkopgavea;
 using ngkopgavea.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using ngkopgavea.Hubs;
 
 namespace ngkopgavea.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    //[Authorize]
     public class WeatherForecastsController : ControllerBase
     {
         private readonly UnitOfWork uow;
+        private readonly IHubContext<MeasurementHub> hub;
         private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
 
-        public WeatherForecastsController()
+        public WeatherForecastsController(IHubContext<MeasurementHub> hub)
         {
+            this.hub = hub;
             uow = new UnitOfWork();
         }
 
@@ -79,7 +82,7 @@ namespace ngkopgavea.Controllers
             }
         }
         // GET: api/WeatherForecasts/5
-        [HttpGet("{id}")]
+        [HttpGet("id/{id}")]
         public async Task<ActionResult<string>> Get(int id)
         {
             try
@@ -97,23 +100,18 @@ namespace ngkopgavea.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<string>> PostWeatherForecast(WeatherForecast weatherForecast)
         {
             await uow.WeatherForecastRepository.Add(weatherForecast);
-            string json = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented, serializerSettings);
-            return json;
-        }
-
-        // DELETE: api/WeatherForecasts/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<string>> DeleteWeatherForecast(int id)
-        {
-            var weatherForecast = await uow.WeatherForecastRepository.Get(id);
-            if (weatherForecast == null)
-            {
-                return NotFound();
-            }
-            await uow.WeatherForecastRepository.Delete(weatherForecast);
+            await hub.Clients.All.SendAsync("ReceiveMeasurement",
+                weatherForecast.Date, 
+                weatherForecast.Location.Name,
+                weatherForecast.Location.Latitude, 
+                weatherForecast.Location.Longitude,
+                weatherForecast.TemperatureC,
+                weatherForecast.Humidity,
+                weatherForecast.AirPressure);
             string json = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented, serializerSettings);
             return json;
         }

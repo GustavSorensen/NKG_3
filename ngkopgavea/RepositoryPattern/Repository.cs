@@ -24,11 +24,11 @@ namespace ngkopgavea
         {
             Context = context;
         }
-        public async Task<TEntity> Get(int id)
+        public virtual async Task<TEntity> Get(int id)
         {
             return await Context.Set<TEntity>().FindAsync(id);
         }
-        public async Task<IEnumerable<TEntity>> Get()
+        public virtual async Task<IEnumerable<TEntity>> Get()
         {
             return await Context.Set<TEntity>().ToListAsync();
         }

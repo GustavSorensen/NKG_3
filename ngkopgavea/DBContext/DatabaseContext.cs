@@ -33,6 +33,7 @@ namespace ngkopgavea
                 .HasForeignKey<Location>(e => e.WeatherForecastId);
 
             modelBuilder.ApplyConfiguration(new WeatherForecastConfigurations());
+            modelBuilder.ApplyConfiguration(new LocationConfigurations());
         }
     } 
 }
