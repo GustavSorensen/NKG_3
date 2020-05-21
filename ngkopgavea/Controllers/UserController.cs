@@ -29,6 +29,7 @@ namespace ngkopgavea.Controllers
         {
             unit = new UnitOfWork();
         }
+
         [HttpPost("login")]
         public async Task<ActionResult<User>> Authenticate([FromBody]UserDTO model)
         {
@@ -39,6 +40,7 @@ namespace ngkopgavea.Controllers
 
             return Ok(user);
         }
+
         [HttpPost]
         public async Task<ActionResult<UserDTO>> Register([FromBody] UserDTO userDTO)
         {

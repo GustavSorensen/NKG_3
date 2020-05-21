@@ -38,7 +38,7 @@ namespace ngkopgavea.RepositoryPattern
                 var user = await Context.Users.FirstOrDefaultAsync(x => x.Username == username);
                 if (user != null)
                 {
-                    return false;
+                    return false; //Der skal da returneres username tilbage, ikke?
                 }
             }
             catch
