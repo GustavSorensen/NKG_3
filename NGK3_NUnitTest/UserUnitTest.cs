@@ -5,6 +5,7 @@ using ngkopgavea.Models;
 using ngkopgavea.RepositoryPattern;
 using NSubstitute;
 using NUnit.Framework;
+using static BCrypt.Net.BCrypt;
  
 
 namespace NGK3_NUnitTest
@@ -31,47 +32,40 @@ namespace NGK3_NUnitTest
                 Password = "123123"
             };
 
-            _repository.Get("SebastianFindesIkke").Returns((true)); //Har brug for username bliver returned?
+            _repository.Get("SebastianFindesIkke").Returns((true)); 
 
             //Act
             var result = _uut.Authenticate(request);
 
             //Assert
-            var expected = new { success = false, message = "Username doesn't exist. Please register an account." };
-            var jsonActual = JsonSerializer.Serialize(result.Value);
-            var jsonExpected = JsonSerializer.Serialize(expected);
+            Assert.That(result.Result.Value == null); //Virker denne? Hilsen en lidt forvirret Gustabovich
 
-            Assert.That(jsonActual, Is.EqualTo(jsonExpected));
         }
 
         [Test]
         public void LoginFails_WrongPassword()
         {
             //Arrange
-            var request = new AccountRequest()
+            var request = new UserDTO()
             {
-                UserName = "Jens",
-                Password = "1234nejnejnej"
+                Username = "SebastianVejrmand",
+                Password = "DettePasswordFindesIkke"
             };
 
-            var account = new Account
+            var account = new User
             {
                 Id = 3,
-                UserName = "Jens",
-                PasswordHash = HashPassword("1234jajaja", 10)
+                Username = "SebastianVejrmand",
+                Password = HashPassword("EtGodtPassword")
             };
 
-            _repository.GetByUserName("Jens").Returns(account);
-
             //Act
-            var result = _uut.Login(request).Result as ObjectResult;
+            var result = _uut.Authenticate(request);
 
             //Assert
-            var expected = new { success = false, message = "Wrong password" };
-            var jsonActual = JsonSerializer.Serialize(result.Value);
-            var jsonExpected = JsonSerializer.Serialize(expected);
+            Assert.That(result.Result.Value.Password);
+            
 
-            Assert.That(jsonActual, Is.EqualTo(jsonExpected));
         }
 
 
