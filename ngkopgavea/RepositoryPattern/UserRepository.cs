@@ -21,7 +21,7 @@ namespace ngkopgavea.RepositoryPattern
     public interface IUserRepository : IRepository<User>
     {
         Task<User> Authenticate(string username, string password);
-        Task<bool> Get(string username);
+        Task<User> Get(string username);
     }
 
     public class UserRepository : Repository<User>, IUserRepository
@@ -31,28 +31,32 @@ namespace ngkopgavea.RepositoryPattern
         public UserRepository(DatabaseContext context) : base(context)
         {
         }
-        public async Task<bool> Get(string username)
+        public async Task<User> Get(string username)
         {
             try 
             {
                 var user = await Context.Users.FirstOrDefaultAsync(x => x.Username == username);
                 if (user != null)
                 {
-                    return false; //Der skal da returneres username tilbage, ikke?
+                    return user; //Der skal da returneres username tilbage, ikke?
                 }
             }
             catch
             {
 
             }
-            return true;
+            return null;
         }
         public async Task<User> Authenticate(string username, string password)
         {
-            var user = await Context.Users.SingleOrDefaultAsync(x => x.Username == username);
+            var user = await Get(username);
+            if(user == null)
+            {
+                return null;
+            }
             bool validPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
             // return null if user not found
-            if (user == null || !validPassword)
+            if (!validPassword)
             {
                 return null;
             }

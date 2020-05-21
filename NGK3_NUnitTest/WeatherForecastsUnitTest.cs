@@ -12,22 +12,22 @@ using ngkopgavea.Models;
 using ngkopgavea.Hubs;
 using ngkopgavea.RepositoryPattern;
 using System.Text.Json;
+using ngkopgavea;
 
-
-namespace Vejrstation.Test.Unit
+namespace NGK3_NUnitTest
 {
     [TestFixture]
-    class WeatherObservationUnitTest
+    class WeatherForecastsUnitTest
     {
-        private IWeatherForecastRepository _weatherRepository;
         private IHubContext<MeasurementHub> _hubContext;
         private WeatherForecastsController _uut;
+        private IUnitOfWork _unit;
         [SetUp]
         public void Setup()
         {
-            _weatherRepository = Substitute.For<IWeatherForecastRepository>();
             _hubContext = Substitute.For<IHubContext<MeasurementHub>>();
-            _uut = new WeatherForecastsController(_hubContext);
+            _unit = Substitute.For<IUnitOfWork>();
+            _uut = new WeatherForecastsController(_unit ,_hubContext);
         }
 
 
@@ -41,7 +41,7 @@ namespace Vejrstation.Test.Unit
 
             //Assert
             Assert.NotNull(result);
-            await _weatherRepository.Received().GetTopThreeNewest();
+            await _unit.WeatherForecastRepository.Received().GetTopThreeNewest();
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Vejrstation.Test.Unit
 
             //Assert
             Assert.NotNull(result);
-            await _weatherRepository.Received().GetByDate(testDate);
+            await _unit.WeatherForecastRepository.Received().GetByDate(testDate);
 
         }
 
@@ -97,7 +97,7 @@ namespace Vejrstation.Test.Unit
 
             //Assert
             Assert.NotNull(result);
-            await _weatherRepository.Received().GetByInterval(startDate, endDate);
+            await _unit.WeatherForecastRepository.Received().GetByInterval(startDate, endDate);
         }
     }
 }

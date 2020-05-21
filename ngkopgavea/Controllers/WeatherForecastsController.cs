@@ -18,14 +18,14 @@ namespace ngkopgavea.Controllers
     [ApiController]
     public class WeatherForecastsController : ControllerBase
     {
-        private readonly UnitOfWork uow;
+        private readonly IUnitOfWork uow;
         private readonly IHubContext<MeasurementHub> hub;
         private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
 
-        public WeatherForecastsController(IHubContext<MeasurementHub> hub)
+        public WeatherForecastsController(IUnitOfWork unit, IHubContext<MeasurementHub> hub)
         {
             this.hub = hub;
-            uow = new UnitOfWork();
+            uow = unit;
         }
 
         // GET: api/WeatherForecasts

@@ -61,6 +61,7 @@ namespace ngkopgavea
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>();
             services.AddScoped<IRepository<Location>, Repository<Location>>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSignalR();
             services.AddRazorPages();
         }

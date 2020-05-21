@@ -7,7 +7,14 @@ using System.Threading.Tasks;
 
 namespace ngkopgavea
 {
-    public class UnitOfWork : IDisposable
+    public interface IUnitOfWork : IDisposable
+    {
+        IWeatherForecastRepository WeatherForecastRepository { get; }
+        IUserRepository UserRepository { get; }
+        IRepository<Location> LocationRepository { get; }
+        public int Commit();
+    }
+    public class UnitOfWork : IDisposable, IUnitOfWork
     {
         public DatabaseContext Context { get; protected set; }
         private WeatherForecastRepository weatherForecastRepository;

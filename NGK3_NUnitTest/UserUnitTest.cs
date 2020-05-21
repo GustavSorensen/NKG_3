@@ -1,25 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using ngkopgavea;
 using ngkopgavea.Controllers;
 using ngkopgavea.Models;
 using ngkopgavea.RepositoryPattern;
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
+using System.Text.Json;
 using static BCrypt.Net.BCrypt;
- 
+
 
 namespace NGK3_NUnitTest
 {
     public class UserUnitTest
     {
         private UserController _uut;
-        private IUserRepository _repository;
+        private IUnitOfWork _unit;
         
         [SetUp]
         public void Setup()
         {
-            _repository = Substitute.For<IUserRepository>();
-            _uut = new UserController();
+            _unit = Substitute.For<IUnitOfWork>();
+            _uut = new UserController(_unit);
         }
 
         [Test]
@@ -32,13 +34,17 @@ namespace NGK3_NUnitTest
                 Password = "123123"
             };
 
-            _repository.Get("SebastianFindesIkke").Returns((true)); 
+            _unit.UserRepository.Get("SebastianFindesIkke").ReturnsNull(); 
 
             //Act
-            var result = _uut.Authenticate(request);
+            var result = _uut.Authenticate(request).Result as ObjectResult;
 
             //Assert
-            Assert.That(result.Result.Value == null); //Virker denne? Hilsen en lidt forvirret Gustabovich
+            var expected = new {message = "Username or password is incorrect" };
+            var jsonActual = JsonSerializer.Serialize(result.Value);
+            var jsonExpected = JsonSerializer.Serialize(expected);
+
+            Assert.That(jsonActual, Is.EqualTo(jsonExpected));
 
         }
 
@@ -58,70 +64,44 @@ namespace NGK3_NUnitTest
                 Username = "SebastianVejrmand",
                 Password = HashPassword("EtGodtPassword")
             };
-
+            _unit.UserRepository.Get("SebastianVejrmand").ReturnsNull();
             //Act
-            var result = _uut.Authenticate(request);
+            var result = _uut.Authenticate(request).Result as ObjectResult;
 
             //Assert
-            Assert.That(result.Result.Value.Password);
-            
-
-        }
-
-
-
-        /* Not working due to failure to read the static Settings class. Throws a nullreferenceexception.
-        [Test]
-        public void LoginSuccess()
-        {
-            //Arrange
-            var request = new AccountRequest()
-            {
-                UserName = "Jens",
-                Password = "1234jajaja"
-            };
-            
-            var account = new Account
-            {
-                Id = 3,
-                UserName = "Jens",
-                PasswordHash = HashPassword("1234jajaja", 10)
-            };
-            
-            _repository.GetByUserName("Jens").Returns(account);
-            
-            //Act
-            var result = _uut.Login(request).Result as ObjectResult;
-            //Assert
+            var expected = new {message = "Username or password is incorrect" };
             var jsonActual = JsonSerializer.Serialize(result.Value);
-            Assert.That(jsonActual.Contains("jwt"));
+            var jsonExpected = JsonSerializer.Serialize(expected);
+
+            Assert.That(jsonActual, Is.EqualTo(jsonExpected));
+
+
         }
-        */
 
         [Test]
         public void Register_Fails_UserAlreadyExists()
         {
             //Arrange
-            var request = new AccountRequest()
+            var request = new UserDTO()
             {
-                UserName = "Jens",
-                Password = "1234jajaja"
+                Username = "Bente",
+                Password = "4321"
             };
 
-            var account = new Account
+            var account = new User
             {
                 Id = 3,
-                UserName = "Jens",
-                PasswordHash = HashPassword("1234jajaja", 10)
+                Username = "Bente",
+                Password = HashPassword("4321")
             };
 
-            _repository.GetByUserName("Jens").Returns(account);
+            _unit.UserRepository.Get("Bente").Returns(account);
 
             //Act
             var result = _uut.Register(request).Result as ObjectResult;
 
             //Assert
-            var expected = new { success = false, message = "UserName already exists, try logging in." };
+            var expected = new {message = "User already exists" };
             var jsonActual = JsonSerializer.Serialize(result.Value);
             var jsonExpected = JsonSerializer.Serialize(expected);
 

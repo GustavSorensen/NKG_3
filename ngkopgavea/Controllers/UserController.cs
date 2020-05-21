@@ -22,16 +22,16 @@ namespace ngkopgavea.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly UnitOfWork unit;
+        private readonly IUnitOfWork unit;
         private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
 
-        public UserController()
+        public UserController(IUnitOfWork unit)
         {
-            unit = new UnitOfWork();
+            this.unit = unit;
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Authenticate([FromBody]UserDTO model)
+        public async Task<ActionResult> Authenticate([FromBody]UserDTO model)
         {
             var user = await unit.UserRepository.Authenticate(model.Username, model.Password);
 
@@ -42,10 +42,10 @@ namespace ngkopgavea.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserDTO>> Register([FromBody] UserDTO userDTO)
+        public async Task<ActionResult> Register([FromBody] UserDTO userDTO)
         {
-            bool exist = await unit.UserRepository.Get(userDTO.Username);
-            if(exist)
+            User exist = await unit.UserRepository.Get(userDTO.Username);
+            if(exist == null)
             {
                 var user = new User()
                 {
@@ -56,11 +56,11 @@ namespace ngkopgavea.Controllers
                 await unit.UserRepository.Add(user);
                 return Ok(userDTO);
             }
-            return BadRequest("User already exists");
+            return BadRequest(new { message = "User already exists" });
         }
 
         [HttpGet]
-        public async Task<ActionResult<string>> GetAll()
+        public async Task<ActionResult> GetAll()
         {
             var users = await unit.UserRepository.Get();
             string json = JsonConvert.SerializeObject(users, Formatting.Indented, serializerSettings);
