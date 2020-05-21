@@ -43,12 +43,12 @@ namespace ngkopgavea.Controllers
             }
         }
         [HttpGet("{start}/{end}")]
-        public async Task<ActionResult<string>> GetByInterval(DateTime start, DateTime end)
+        public async Task<ActionResult> GetByInterval(DateTime start, DateTime end)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.GetByInterval(start, end), Formatting.Indented, serializerSettings);
-                return json;
+                return Ok(json);
             }
             catch
             {
@@ -56,7 +56,7 @@ namespace ngkopgavea.Controllers
             }
         }
         [HttpGet("new")]
-        public async Task<ActionResult<string>> GetNewest()
+        public async Task<IActionResult> GetNewest()
         {
             try
             {
@@ -69,12 +69,12 @@ namespace ngkopgavea.Controllers
             }
         }
         [HttpGet("{date}")]
-        public async Task<ActionResult<string>> GetByDate(DateTime date)
+        public async Task<IActionResult> GetByDate(DateTime date)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.GetByDate(date), Formatting.Indented, serializerSettings);
-                return json;
+                return Ok(json);
             }
             catch
             {
@@ -83,12 +83,12 @@ namespace ngkopgavea.Controllers
         }
         // GET: api/WeatherForecasts/5
         [HttpGet("id/{id}")]
-        public async Task<ActionResult<string>> Get(int id)
+        public async Task<ActionResult> Get(int id)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(await uow.WeatherForecastRepository.Get(id), Formatting.Indented, serializerSettings);
-                return json;
+                return Ok(json);
             }
             catch
             {
@@ -101,7 +101,7 @@ namespace ngkopgavea.Controllers
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<string>> PostWeatherForecast(WeatherForecast weatherForecast)
+        public async Task<ActionResult> PostWeatherForecast(WeatherForecast weatherForecast)
         {
             await uow.WeatherForecastRepository.Add(weatherForecast);
             await hub.Clients.All.SendAsync("NewMeasurements",
@@ -113,7 +113,7 @@ namespace ngkopgavea.Controllers
                 weatherForecast.Humidity,
                 weatherForecast.AirPressure);
             string json = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented, serializerSettings);
-            return json;
+            return Ok(json);
         }
     }
 }

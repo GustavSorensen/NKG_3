@@ -1,144 +1,103 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Text;
-//using System.Threading;
-//using System.Threading.Tasks;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.AspNetCore.SignalR;
-//using NUnit.Framework;
-//using NSubstitute;
-//using ngkopgavea.Controllers;
-//using ngkopgavea.Models;
-//using ngkopgavea.Hubs;
-//using ngkopgavea.RepositoryPattern;
-//using System.Text.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using NUnit.Framework;
+using NSubstitute;
+using ngkopgavea.Controllers;
+using ngkopgavea.Models;
+using ngkopgavea.Hubs;
+using ngkopgavea.RepositoryPattern;
+using System.Text.Json;
 
 
-//namespace Vejrstation.Test.Unit
-//{
-//    [TestFixture]
-//    class WeatherObservationUnitTest
-//    {
-//        private IWeatherForecastRepository _weatherObservationRepository;
-//        private IHubContext<MeasurementHub> _hubContext;
-//        private WeatherForecastsController _uut;
-//        [SetUp]
-//        public void Setup()
-//        {
-//            _weatherObservationRepository = Substitute.For<IWeatherObservationRepository>();
-//            _hubContext = Substitute.For<IHubContext<LiveUpdateHub>>();
-//            _uut = new WeatherObservationController(_weatherObservationRepository, _hubContext);
-//        }
+namespace Vejrstation.Test.Unit
+{
+    [TestFixture]
+    class WeatherObservationUnitTest
+    {
+        private IWeatherForecastRepository _weatherRepository;
+        private IHubContext<MeasurementHub> _hubContext;
+        private WeatherForecastsController _uut;
+        [SetUp]
+        public void Setup()
+        {
+            _weatherRepository = Substitute.For<IWeatherForecastRepository>();
+            _hubContext = Substitute.For<IHubContext<MeasurementHub>>();
+            _uut = new WeatherForecastsController(_hubContext);
+        }
 
 
-//        [Test]
-//        public async Task GetLastThreeWeatherObservations()
-//        {
-//            //Arrange
+        [Test]
+        public async Task GetLastThreeWeatherObservations()
+        {
+            //Arrange
 
-//            //Act
-//            var result = (await _uut.GetLastThree()) as ObjectResult;
+            //Act
+            var result = (await _uut.GetNewest()) as ObjectResult;
 
-//            //Assert
-//            Assert.NotNull(result);
-//            await _weatherObservationRepository.Received().GetLastThree();
-//        }
+            //Assert
+            Assert.NotNull(result);
+            await _weatherRepository.Received().GetTopThreeNewest();
+        }
 
-//        [Test]
-//        public async Task GetWeatherObservationByDate()
-//        {
-//            //Arrange
-//            WeatherObservation weatherObservations = new WeatherObservation()
-//            {
+        [Test]
+        public async Task GetWeatherObservationByDate()
+        {
+            //Arrange
+            WeatherForecast weatherObservations = new WeatherForecast()
+            {
 
-//                Date = new DateTime(2020, 6, 20),
-//                Name = "Vejle",
-//                Latitude = 1013031,
-//                Longitude = 2554322,
-//                TemperatureCelsius = 11,
-//                Humidity_Percentage = 14,
-//                Pressure_Millibar = 5
-//            };
-//            //Act
-//            var result = (await _uut.GetOnDate(new DateTime(2020, 6, 20))) as ObjectResult;
+                Date = new DateTime(2020, 6, 20),
+                Location = new Location()
+                {
+                    Name = "Vejle",
+                    Latitude = 1013031,
+                    Longitude = 2554322
+                },
+                TemperatureC = 11,
+                Humidity = 14,
+                AirPressure = 5
+            };
+            DateTime testDate = new DateTime(2020, 5, 20);
+            //Act
+            var result = (await _uut.GetByDate(testDate)) as ObjectResult;
 
-//            //Assert
-//            Assert.NotNull(result);
-//            await _weatherObservationRepository.Received().GetOnDate(new DateTime(2020, 6, 20));
+            //Assert
+            Assert.NotNull(result);
+            await _weatherRepository.Received().GetByDate(testDate);
 
-//        }
+        }
 
-//        [Test]
-//        public async Task GetWeatherObservationsBetweenDates()
-//        {
-//            //Arrange
-//            WeatherObservation weatherObservations = new WeatherObservation()
-//            {
+        [Test]
+        public async Task GetWeatherObservationsBetweenDates()
+        {
+            //Arrange
+            WeatherForecast weatherObservations = new WeatherForecast()
+            {
 
-//                Date = new DateTime(2020, 6, 20),
-//                Name = "Vordingborg",
-//                Latitude = 10130343,
-//                Longitude = 255522,
-//                TemperatureCelsius = 1,
-//                Humidity_Percentage = 4,
-//                Pressure_Millibar = 1
-//            };
+                Date = new DateTime(2020, 7, 15),
+                Location = new Location()
+                {
+                    Name = "Vordingborg",
+                    Latitude = 450,
+                    Longitude = 255
+                },
+                TemperatureC = 1,
+                Humidity = 4,
+                AirPressure = 1
+            };
+            DateTime startDate = new DateTime(2020, 6, 28);
+            DateTime endDate = new DateTime(2020, 6, 10);
+            //Act
+            var result = (await _uut.GetByInterval(startDate, endDate)) as ObjectResult;
 
-//            //Act
-//            var result = (await _uut.GetBetween(new DateTime(2020, 6, 28), new DateTime(2020, 6, 10))) as ObjectResult;
-
-//            //Assert
-//            Assert.NotNull(result);
-//            await _weatherObservationRepository.Received().GetBetween(new DateTime(2020, 6, 28), new DateTime(2020, 6, 10));
-//        }
-
-//        /* Following test is not working due to some mocking error on the Returns() call.
-//        [Test]
-//        public async Task CreateWeatherObservation()
-//        {
-//            //Arrange
-//            WeatherObservationRequest weatherObservation = new WeatherObservationRequest()
-//            {
-//                    Date = new DateTime(2020, 2, 8),
-//                    Name = "Ikast",
-//                    Latitude = 10120343,
-//                    Longitude = 2667522,
-//                    TemperatureCelsius = 40,
-//                    Humidity_Percentage = 700,
-//                    Pressure_Millibar = 0
-//            };
-//            WeatherObservation observationCreated = new WeatherObservation
-//            {
-//                Date = weatherObservation.Date,
-//                Name = weatherObservation.Name,
-//                Latitude = weatherObservation.Latitude,
-//                Longitude = weatherObservation.Longitude,
-//                TemperatureCelsius = weatherObservation.TemperatureCelsius,
-//                Humidity_Percentage = weatherObservation.Humidity_Percentage,
-//                Pressure_Millibar = weatherObservation.Pressure_Millibar
-//            };
-            
-//            WeatherObservation observationReturned = new WeatherObservation
-//            {
-//                Id = 3,
-//                Date = weatherObservation.Date,
-//                Name = weatherObservation.Name,
-//                Latitude = weatherObservation.Latitude,
-//                Longitude = weatherObservation.Longitude,
-//                TemperatureCelsius = weatherObservation.TemperatureCelsius,
-//                Humidity_Percentage = weatherObservation.Humidity_Percentage,
-//                Pressure_Millibar = weatherObservation.Pressure_Millibar
-//            };
-//            _weatherObservationRepository.Create(observationCreated).Returns(observationReturned);
-            
-//            //Act
-//            var result = await _uut.CreateEntity(weatherObservation);
-//            //var jsonActual = JsonSerializer.Serialize(result.Value);
-//            //Assert.NotNull(jsonActual);
-//            await _weatherObservationRepository.Received(1).Create(observationCreated);
-//        }
-//        */
-
-
-//    }
-//}
+            //Assert
+            Assert.NotNull(result);
+            await _weatherRepository.Received().GetByInterval(startDate, endDate);
+        }
+    }
+}
